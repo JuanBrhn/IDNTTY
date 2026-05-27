@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¿Quieres vivir la experiencia?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page {
+      min-height: 100vh;
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      text-align: center;
+      animation: entrada 0.6s ease;
+    }
+
+    @keyframes entrada {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .claim {
+      font-size: 28px;
+      font-weight: 400;
+      color: #f0f0f0;
+      line-height: 1.3;
+      margin-bottom: 3rem;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .btn {
+      padding: 1rem 1.5rem;
+      font-size: 17px;
+      font-weight: 400;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: #f0f0f0;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:hover { background: rgba(255,255,255,0.1); }
+    .btn:active { transform: scale(0.98); }
+
+    .btn.si {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.3);
+      color: #ffffff;
+    }
+    .btn.si:hover { background: rgba(255,255,255,0.14); }
+
+    .mensaje {
+      font-size: 16px;
+      color: rgba(240,240,240,0.75);
+      line-height: 1.9;
+      max-width: 320px;
+      margin-bottom: 2.5rem;
+    }
+
+    .bienvenida {
+      display: block;
+      font-size: 20px;
+      font-weight: 400;
+      color: #f0f0f0;
+      margin-bottom: 1.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    .inicio {
+      font-size: 15px;
+      font-weight: 500;
+      color: #f0f0f0;
+      margin-bottom: 2rem;
+    }
+
+    .separador {
+      width: 24px;
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+      margin: 0 auto 2rem;
+    }
+
+    .pregunta-loop {
+      font-size: 20px;
+      font-weight: 400;
+      color: #f0f0f0;
+      margin-bottom: 2rem;
+      letter-spacing: -0.01em;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    function render(id) {
+      const app = document.getElementById('app');
+
+      if (id === 'inicio') {
+        app.innerHTML = `
+          <div class="page">
+            <p class="claim">¿Quieres vivir la experiencia?</p>
+            <div class="btn-group">
+              <button class="btn si" onclick="render('si')">Sí</button>
+              <button class="btn" onclick="render('no')">No</button>
+            </div>
+          </div>`;
+
+      } else if (id === 'si') {
+        app.innerHTML = `
+          <div class="page">
+            <div class="mensaje">
+              <span class="bienvenida">Bienvenido/a.<br>Es un honor que formes parte de esto.</span>
+              Tu lugar está en el escenario. Deja las cosas en la grada, baja y ocupa cualquier sitio en el escenario. Intentando mantener siempre el espacio equilibrado.<br><br>
+              Deja todas tus cosas y llévate tu móvil. Pon tus notificaciones en sonido.
+            </div>
+            <p class="inicio">La experiencia está a punto de comenzar.</p>
+          </div>`;
+
+      } else if (id === 'no') {
+        app.innerHTML = `
+          <div class="page">
+            <div class="mensaje">
+              Nos encantaría que hubieras pulsado Sí, pero en cualquier caso, estamos encantados de recibirte.<br><br>
+              Ya que no nos has dado tu confirmación, te tenemos que pedir que abandones la sala. Esta experiencia es solo para aquellas personas que están dispuestas a vivirla.<br><br>
+              Pero como creemos en las segundas oportunidades, te lo volvemos a preguntar:
+            </div>
+            <div class="separador"></div>
+            <p class="pregunta-loop">¿Quieres vivir la experiencia?</p>
+            <div class="btn-group">
+              <button class="btn si" onclick="render('si')">Sí</button>
+              <button class="btn" onclick="render('no')">No</button>
+            </div>
+          </div>`;
+      }
+    }
+
+    render('inicio');
+  </script>
+</body>
+</html>

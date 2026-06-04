@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>¿Quieres vivir la experiencia?</title>
+  <title>IDNTTY</title>
+  <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0a0a0a;
-      color: #f0f0f0;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background 0.5s ease, color 0.5s ease;
     }
+    body.dark  { background: #0a0a0a; color: #f0f0f0; }
+    body.light { background: #ffffff; color: #0a0a0a; }
+    body.red   { background: #c0000a; color: #ffffff; }
+    body.blank { background: #ffffff; color: #ffffff; }
 
     .page {
       min-height: 100vh;
@@ -28,22 +31,44 @@
       justify-content: center;
       padding: 3rem 2rem;
       text-align: center;
-      animation: entrada 0.6s ease;
+      animation: entrada 0.5s ease;
     }
-
     @keyframes entrada {
-      from { opacity: 0; transform: translateY(14px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    @keyframes golpe {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .golpe { animation: golpe 0.35s ease; }
 
     .claim {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 400;
-      color: #f0f0f0;
-      line-height: 1.3;
+      line-height: 1.35;
       margin-bottom: 3rem;
       letter-spacing: -0.01em;
     }
+    .texto {
+      font-size: 16px;
+      line-height: 1.85;
+      max-width: 320px;
+      margin-bottom: 2rem;
+      opacity: 0.85;
+    }
+    .texto.grande {
+      font-size: 20px;
+      font-weight: 400;
+      opacity: 1;
+      margin-bottom: 2.5rem;
+    }
+    .texto ol {
+      text-align: left;
+      padding-left: 1.25rem;
+      margin-top: 1rem;
+    }
+    .texto ol li { margin-bottom: 0.5rem; }
 
     .btn-group {
       display: flex;
@@ -52,118 +77,323 @@
       width: 100%;
       max-width: 280px;
     }
-
     .btn {
       padding: 1rem 1.5rem;
       font-size: 17px;
       font-weight: 400;
       border-radius: 12px;
       cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+    }
+    .btn:active { transform: scale(0.97); }
+
+    body.dark .btn {
       border: 1px solid rgba(255,255,255,0.15);
       background: rgba(255,255,255,0.05);
       color: #f0f0f0;
-      transition: background 0.2s, transform 0.1s;
-      width: 100%;
-      letter-spacing: 0.01em;
     }
-
-    .btn:hover { background: rgba(255,255,255,0.1); }
-    .btn:active { transform: scale(0.98); }
-
-    .btn.si {
-      background: rgba(255,255,255,0.08);
+    body.dark .btn:hover { background: rgba(255,255,255,0.1); }
+    body.dark .btn.principal {
       border-color: rgba(255,255,255,0.3);
-      color: #ffffff;
+      background: rgba(255,255,255,0.09);
+      color: #fff;
     }
-    .btn.si:hover { background: rgba(255,255,255,0.14); }
+    body.dark .btn.principal:hover { background: rgba(255,255,255,0.15); }
 
-    .mensaje {
-      font-size: 16px;
-      color: rgba(240,240,240,0.75);
-      line-height: 1.9;
-      max-width: 320px;
-      margin-bottom: 2.5rem;
+    body.light .btn {
+      border: 1px solid rgba(0,0,0,0.15);
+      background: rgba(0,0,0,0.04);
+      color: #0a0a0a;
     }
-
-    .bienvenida {
-      display: block;
-      font-size: 20px;
-      font-weight: 400;
-      color: #f0f0f0;
-      margin-bottom: 1.75rem;
-      letter-spacing: -0.01em;
+    body.light .btn:hover { background: rgba(0,0,0,0.08); }
+    body.light .btn.principal {
+      border-color: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.07);
+      color: #0a0a0a;
     }
-
-    .inicio {
-      font-size: 15px;
-      font-weight: 500;
-      color: #f0f0f0;
-      margin-bottom: 2rem;
-    }
+    body.light .btn.principal:hover { background: rgba(0,0,0,0.12); }
 
     .separador {
-      width: 24px;
-      height: 1px;
-      background: rgba(255,255,255,0.15);
+      width: 24px; height: 1px;
       margin: 0 auto 2rem;
     }
+    body.dark .separador  { background: rgba(255,255,255,0.15); }
+    body.light .separador { background: rgba(0,0,0,0.15); }
 
     .pregunta-loop {
       font-size: 20px;
       font-weight: 400;
-      color: #f0f0f0;
       margin-bottom: 2rem;
-      letter-spacing: -0.01em;
+    }
+
+    .input-area {
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 1.25rem;
+    }
+    .input-area textarea {
+      width: 100%;
+      min-height: 100px;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 15px;
+      font-family: inherit;
+      resize: none;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.03);
+      color: #0a0a0a;
+      outline: none;
     }
   </style>
 </head>
-<body>
-  <div id="app"></div>
+<body class="dark">
+<div id="app"></div>
+<script>
+  var enEscenario = false;
+  var noCount = 0;
 
-  <script>
-    function render(id) {
-      const app = document.getElementById('app');
-
-      if (id === 'inicio') {
-        app.innerHTML = `
-          <div class="page">
-            <p class="claim">¿Quieres vivir la experiencia?</p>
-            <div class="btn-group">
-              <button class="btn si" onclick="render('si')">Sí</button>
-              <button class="btn" onclick="render('no')">No</button>
-            </div>
-          </div>`;
-
-      } else if (id === 'si') {
-        app.innerHTML = `
-          <div class="page">
-            <div class="mensaje">
-              <span class="bienvenida">Bienvenido/a.<br>Es un honor que formes parte de esto.</span>
-              Tu lugar está en el escenario. Deja las cosas en la grada, baja y ocupa cualquier sitio en el escenario. Intentando mantener siempre el espacio equilibrado.<br><br>
-              Deja todas tus cosas y llévate tu móvil. Pon tus notificaciones en sonido.
-            </div>
-            <p class="inicio">La experiencia está a punto de comenzar.</p>
-          </div>`;
-
-      } else if (id === 'no') {
-        app.innerHTML = `
-          <div class="page">
-            <div class="mensaje">
-              Nos encantaría que hubieras pulsado Sí, pero en cualquier caso, estamos encantados de recibirte.<br><br>
-              Ya que no nos has dado tu confirmación, te tenemos que pedir que abandones la sala. Esta experiencia es solo para aquellas personas que están dispuestas a vivirla.<br><br>
-              Pero como creemos en las segundas oportunidades, te lo volvemos a preguntar:
-            </div>
-            <div class="separador"></div>
-            <p class="pregunta-loop">¿Quieres vivir la experiencia?</p>
-            <div class="btn-group">
-              <button class="btn si" onclick="render('si')">Sí</button>
-              <button class="btn" onclick="render('no')">No</button>
-            </div>
-          </div>`;
+  var pusher = new Pusher('3f2e85fafca817cc9e2c', { cluster: 'eu' });
+  var canal = pusher.subscribe('idntty');
+  canal.bind('pantalla', function(data) {
+    if (enEscenario) {
+      if (data && data.id) {
+        if (data.id === 'p-terminos') vibrar();
+        render(data.id);
       }
     }
+  });
 
-    render('inicio');
-  </script>
+  function vibrar() {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([400, 100, 400, 100, 800]);
+    }
+  }
+
+  function render(id) {
+    const app = document.getElementById('app');
+    const body = document.body;
+
+    // --- INICIO ---
+    if (id === 'inicio') {
+      enEscenario = false; noCount = 0;
+      body.className = 'dark';
+      app.innerHTML = `
+        <div class="page">
+          <p class="claim">¿Quieres vivir la experiencia?</p>
+          <div class="btn-group">
+            <button class="btn principal" onclick="render('p-si')">Sí</button>
+            <button class="btn" onclick="renderNo()">No</button>
+          </div>
+        </div>`;
+
+    // --- SÍ ---
+    } else if (id === 'p-si') {
+      enEscenario = true; noCount = 0;
+      body.className = 'dark';
+      app.innerHTML = `
+        <div class="page">
+          <div class="texto">
+            <span style="display:block;font-size:20px;font-weight:400;margin-bottom:1.5rem;">Bienvenido/a.<br>Es un honor que formes parte de esto.</span>
+            Tu lugar está en el escenario. Deja las cosas en la grada, baja y ocupa una de las marcas verdes que hay en el suelo.
+            <ol>
+              <li>Deja todas tus cosas en tu asiento y solo llévate tu móvil.</li>
+              <li>Pon tus notificaciones en sonido.</li>
+              <li>Podrás moverte solo encima de la marca, puedes girarte, mirar a donde quieras, pero solo desde la marca, a no ser que la plataforma te pida lo contrario.</li>
+            </ol>
+            <br>Ahora sí. ¡Bienvenido a la plataforma!
+          </div>
+        </div>`;
+
+    // --- TÉRMINOS (disparado por control) ---
+    } else if (id === 'p-terminos') {
+      body.className = 'light';
+      app.innerHTML = `
+        <div class="page golpe">
+          <p class="claim">¿Acepta los términos y condiciones del servicio?</p>
+          <div class="btn-group">
+            <button class="btn principal" onclick="render('p-acepto')">Acepto</button>
+            <button class="btn" onclick="render('p-no-acepto')">No acepto</button>
+          </div>
+        </div>`;
+
+    } else if (id === 'p-acepto') {
+      body.className = 'light';
+      app.innerHTML = `
+        <div class="page golpe">
+          <div class="texto">
+            Acaba de aceptar los términos y condiciones de vida. Acaba de dejar sus manos en algo invisible, algo que no ve, que no siente, que no está. Esto ya lo hizo hace tiempo. Por eso estamos aquí. Mirando todos una pantalla del móvil.<br><br>
+            <strong>¡Bienvenido a IDNTTY!</strong>
+          </div>
+        </div>`;
+
+    } else if (id === 'p-no-acepto') {
+      body.className = 'light';
+      app.innerHTML = `
+        <div class="page golpe">
+          <div class="texto">
+            No hay opción correcta, no se puede no aceptar. Ya aceptó hace tiempo. Por eso estamos aquí. Mirando todos una pantalla del móvil.<br><br>
+            <strong>¡Bienvenido a IDNTTY!</strong>
+          </div>
+        </div>`;
+
+    // --- PRUEBAS (disparadas por control) ---
+    } else if (id === 'p1') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡BIENVENIDO A IDNTTY!<br><br>Te hemos clasificado en una de las 5 personalidades. Tu pulsera muestra el grupo de personalidad al que perteneces.<br><br>IDNTTY tiene varios planes de suscripción. Para vivir la experiencia completa deberás tener la categoría MY IDNTTY PLUS TOTALLY GOLD<br><br>EMPECEMOS CON LA CONFIGURACIÓN DE TU PERFIL</div></div>`;
+
+    } else if (id === 'p2') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Por favor, diga su nombre en voz alta para iniciar sesión en el sistema.</div></div>`;
+
+    } else if (id === 'p3') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Ahora, diga un poco más alto el color de su pulsera.</div></div>`;
+
+    } else if (id === 'p4') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡Gracias! Ya lo hemos registrado.</div></div>`;
+
+    } else if (id === 'p5') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Ahora vayamos a registrar otros datos biométricos. Es el turno de nuestros asistentes físicos.<br><br><span style="opacity:0.6;font-size:14px;">Por favor, no bloqueen ni refresquen esta pantalla.</span></div></div>`;
+
+    } else if (id === 'p6') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡Gracias! Ya lo hemos registrado.</div></div>`;
+
+    } else if (id === 'p7') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Ahora vayamos a registrar otros datos sociales. Es el turno de nuestros asistentes físicos.<br><br><span style="opacity:0.6;font-size:14px;">Por favor, no bloqueen ni refresquen esta pantalla.</span></div></div>`;
+
+    } else if (id === 'p8') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡Vaya! Tienes 94 amigos nuevos ¡Estás que te sales! Eres el más popular de la sala.</div></div>`;
+
+    } else if (id === 'p9') {
+      body.className = 'light';
+      app.innerHTML = `
+        <div class="page golpe">
+          <div class="texto grande" style="margin-bottom:2rem;">¡Oh! Parece ser que has llegado al límite de acciones con tu cuenta.<br><br>¿Quieres acceder al siguiente nivel de suscripción para no perderte nada?</div>
+          <div class="btn-group">
+            <button class="btn principal" onclick="render('p10')">Acceder al siguiente nivel de suscripción</button>
+          </div>
+        </div>`;
+
+    } else if (id === 'p10') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡Perfecto! Para acceder al siguiente nivel necesitamos que contestes a la siguiente pregunta en voz alta.<br><br>¿Has tenido alguna vez mascota? Si es así di su nombre en voz alta. Si no has tenido, haz el sonido del animal que te hubiera gustado tener como mascota.</div></div>`;
+
+    } else if (id === 'p11') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡Gracias! Ya lo hemos registrado. Bienvenido al nivel MY IDNTTY PREMIUM</div></div>`;
+
+    } else if (id === 'p12') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Ahora vayamos a registrar otros datos sobre su pasado. Es el turno de nuestros asistentes físicos.<br><br><span style="opacity:0.6;font-size:14px;">Por favor, no bloqueen ni refresquen esta pantalla.</span></div></div>`;
+
+    } else if (id === 'p13') {
+      body.className = 'light';
+      app.innerHTML = `
+        <div class="page golpe">
+          <div class="texto grande" style="margin-bottom:1.5rem;">Escríbalo aquí</div>
+          <div class="input-area">
+            <textarea placeholder=""></textarea>
+          </div>
+          <div class="btn-group">
+            <button class="btn principal" onclick="render('p14')">Enviar</button>
+          </div>
+        </div>`;
+
+    } else if (id === 'p14') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Mmmm ¡Que rico! ¡Gracias! Ya lo hem<strong>LO SABEMOS TODO SOBRE TI</strong>os registrado.</div></div>`;
+
+    } else if (id === 'p15') {
+      body.className = 'light';
+      app.innerHTML = `
+        <div class="page golpe">
+          <div class="texto grande" style="margin-bottom:2rem;">¡Vaya! Parece ser que has llegado al límite de acciones con tu cuenta.<br><br>¿Quieres acceder al siguiente nivel de suscripción para no perderte nada?</div>
+          <div class="btn-group">
+            <button class="btn principal" onclick="render('p16')">Acceder al siguiente nivel de suscripción</button>
+          </div>
+        </div>`;
+
+    } else if (id === 'p16') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Es el turno de nuestros asistentes físicos.<br><br><span style="opacity:0.6;font-size:14px;">Por favor, no bloqueen ni refresquen esta pantalla.</span></div></div>`;
+
+    } else if (id === 'p17') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡Gracias! Ya lo hemos registrado.</div></div>`;
+
+    } else if (id === 'p18') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Reconfigurando su perfil.</div></div>`;
+
+    } else if (id === 'p19') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">La plataforma necesita una última cosa para completar la suscripción a MY IDNTTY PLUS TOTALLY GOLD</div></div>`;
+
+    } else if (id === 'p20') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Tienes que eliminar varios contactos de tu red de amistad. Hemos detectado incompatibilidad con 3 de tus contactos.<br><br>Elige a una persona de un color diferente al tuyo y acaba con su vida.</div></div>`;
+
+    } else if (id === 'p21') {
+      body.className = 'red';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande" style="color:#fff;">ERROR EN EL SISTEMA.<br>RECALIBRANDO LA PLATAFORMA.</div></div>`;
+
+    } else if (id === 'p22') {
+      body.className = 'dark';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Cierre de sesión inesperado.</div></div>`;
+
+    } else if (id === 'p23') {
+      body.className = 'blank';
+      app.innerHTML = `<div class="page golpe"></div>`;
+
+    } else if (id === 'p24') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">NO BAILÉIS.<br>NADIE OS HA PERMITIDO BAILAR.</div></div>`;
+
+    } else if (id === 'p25') {
+      body.className = 'dark';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Desconectándote de IDNTTY.<br>Dejarás de pertenecer.</div></div>`;
+    }
+  }
+
+  function renderNo() {
+    noCount++;
+    enEscenario = false;
+    document.body.className = 'dark';
+    const app = document.getElementById('app');
+
+    if (noCount >= 4) {
+      app.innerHTML = `
+        <div class="page">
+          <div class="texto">
+            ¡Vaya! Vemos que no has querido sucumbir a la tentación de pasártelo bien en IDNTTY. No te preocupes, también hay hueco para ti.<br><br>
+            Quédate en la grada. Te invitamos a que disfrutes desde ahí.<br><br>
+            Recuerda mantener esta página siempre abierta y no recargar. Mantén las notificaciones con sonido.
+          </div>
+        </div>`;
+    } else {
+      app.innerHTML = `
+        <div class="page">
+          <div class="texto">
+            Nos encantaría que hubieras pulsado Sí, pero en cualquier caso, estamos encantados de recibirte. Ya que no nos has dado tu confirmación, te tenemos que pedir que te quedes en tu sitio. Ya que esta experiencia es solo para personas valientes.<br><br>
+            Pero como creemos en las segundas oportunidades, te lo volvemos a preguntar:
+          </div>
+          <div class="separador"></div>
+          <p class="pregunta-loop">¿Quieres vivir la experiencia?</p>
+          <div class="btn-group">
+            <button class="btn principal" onclick="render('p-si')">Sí</button>
+            <button class="btn" onclick="renderNo()">No</button>
+          </div>
+        </div>`;
+    }
+  }
+
+  render('inicio');
+</script>
 </body>
 </html>

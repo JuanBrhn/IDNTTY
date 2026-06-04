@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control — IDNTTY</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    .label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 0.5rem;
+    }
+    .current-name {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 2.5rem;
+      min-height: 18px;
+    }
+    .siguiente-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 0.6rem;
+    }
+    .siguiente-nombre {
+      font-size: 22px;
+      font-weight: 400;
+      color: #ffffff;
+      margin-bottom: 2.5rem;
+      min-height: 28px;
+      line-height: 1.3;
+    }
+    .btn-disparar {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, border-color 0.2s;
+    }
+    .btn-disparar:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.4);
+    }
+    .btn-disparar:active { transform: scale(0.95); }
+    .btn-disparar:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .estado {
+      margin-top: 2rem;
+      font-size: 13px;
+      color: rgba(255,255,255,0.3);
+      min-height: 18px;
+    }
+    .estado.ok    { color: rgba(255,255,255,0.6); }
+    .estado.error { color: #ff6b6b; }
+    .fin {
+      font-size: 14px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <p class="label">IDNTTY — Control</p>
+  <p class="current-name" id="current-name">Pantalla actual: Inicio</p>
+  <p class="siguiente-label">Siguiente pantalla</p>
+  <p class="siguiente-nombre" id="siguiente-nombre">—</p>
+  <button class="btn-disparar" id="btn" onclick="disparar()">Disparar</button>
+  <p class="estado" id="estado"></p>
+  <p class="fin" id="fin"></p>
+
+  <script>
+    const secuencia = [
+      { id: 'p-terminos',  nombre: 'Términos y condiciones' },
+      { id: 'p1',          nombre: 'Prueba #1 — Bienvenido a IDNTTY' },
+      { id: 'p2',          nombre: 'Prueba #2 — Di tu nombre en voz alta' },
+      { id: 'p3',          nombre: 'Prueba #3 — Di el color de tu pulsera' },
+      { id: 'p4',          nombre: 'Prueba #4 — Gracias, registrado' },
+      { id: 'p5',          nombre: 'Prueba #5 — Datos biométricos' },
+      { id: 'p6',          nombre: 'Prueba #6 — Gracias, registrado' },
+      { id: 'p7',          nombre: 'Prueba #7 — Datos sociales' },
+      { id: 'p8',          nombre: 'Prueba #8 — 94 amigos nuevos' },
+      { id: 'p9',          nombre: 'Prueba #9 — Límite de acciones' },
+      { id: 'p11',         nombre: 'Prueba #11 — Bienvenido a PREMIUM' },
+      { id: 'p12',         nombre: 'Prueba #12 — Datos del pasado' },
+      { id: 'p13',         nombre: 'Prueba #13 — Escríbalo aquí' },
+      { id: 'p14',         nombre: 'Prueba #14 — Lo sabemos todo' },
+      { id: 'p15',         nombre: 'Prueba #15 — Límite de acciones' },
+      { id: 'p16',         nombre: 'Prueba #16 — Asistentes físicos' },
+      { id: 'p17',         nombre: 'Prueba #17 — Gracias, registrado' },
+      { id: 'p18',         nombre: 'Prueba #18 — Reconfigurando perfil' },
+      { id: 'p19',         nombre: 'Prueba #19 — Última cosa' },
+      { id: 'p20',         nombre: 'Prueba #20 — Acaba con su vida' },
+      { id: 'p21',         nombre: 'Prueba #21 — ERROR (rojo)' },
+      { id: 'p22',         nombre: 'Prueba #22 — Cierre inesperado (negro)' },
+      { id: 'p23',         nombre: 'Prueba #23 — Pantalla en blanco total' },
+      { id: 'p24',         nombre: 'Prueba #24 — No bailéis' },
+      { id: 'p25',         nombre: 'Prueba #25 — Desconectando (FINAL)' },
+    ];
+
+    var paso = 0;
+
+    function actualizarUI() {
+      const sig = secuencia[paso];
+      const prev = paso > 0 ? secuencia[paso - 1] : null;
+      document.getElementById('current-name').textContent =
+        prev ? 'Pantalla actual: ' + prev.nombre : 'Pantalla actual: Inicio (esperando Sí del público)';
+      if (sig) {
+        document.getElementById('siguiente-nombre').textContent = sig.nombre;
+        document.getElementById('btn').disabled = false;
+        document.getElementById('fin').textContent = '';
+      } else {
+        document.getElementById('siguiente-nombre').textContent = '—';
+        document.getElementById('btn').disabled = true;
+        document.getElementById('fin').textContent = 'Experiencia completada';
+      }
+    }
+
+    async function disparar() {
+      const sig = secuencia[paso];
+      if (!sig) return;
+      const btn = document.getElementById('btn');
+      const estado = document.getElementById('estado');
+      btn.disabled = true;
+      estado.className = 'estado';
+      estado.textContent = 'Enviando…';
+
+      try {
+        const res = await fetch('/api/trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: sig.id })
+        });
+        if (res.ok) {
+          estado.className = 'estado ok';
+          estado.textContent = '✓ Enviado';
+          paso++;
+          actualizarUI();
+        } else { throw new Error(); }
+      } catch(e) {
+        estado.className = 'estado error';
+        estado.textContent = 'Error al enviar';
+        btn.disabled = false;
+      }
+      setTimeout(() => { estado.textContent = ''; }, 2500);
+    }
+
+    actualizarUI();
+  </script>
+</body>
+</html>

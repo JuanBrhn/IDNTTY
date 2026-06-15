@@ -90,7 +90,6 @@
 
   <script>
     const secuencia = [
-      { id: 'p-cero',     nombre: 'Pantalla Cero — IDNTTY' },
       { id: 'inicio',     nombre: 'Inicio — ¿Quieres vivir la experiencia?' },
       { id: 'p-terminos', nombre: 'Términos y condiciones ⚡ vibración' },
       { id: 'p1',         nombre: 'Prueba #1 — Bienvenido a IDNTTY' },
@@ -128,7 +127,7 @@
       const sig = secuencia[paso];
       const prev = paso > 0 ? secuencia[paso - 1] : null;
       document.getElementById('actual').textContent =
-        prev ? 'Actual: ' + prev.nombre : 'Actual: En espera';
+        prev ? 'Actual: ' + prev.nombre : 'Actual: Pantalla Cero (automática)';
       document.getElementById('progreso').textContent =
         paso + ' / ' + secuencia.length;
       if (sig) {

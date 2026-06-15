@@ -364,7 +364,7 @@
         <div class="page golpe">
           <div class="texto" style="margin-bottom:2rem;">Estás a punto de abandonar y no disfrutar de la gran experiencia que hay al final del recorrido.<br><br>¿Quieres abandonar?</div>
           <div class="btn-group">
-            <button class="btn secundario" onclick="render('p-abandon-final')">Sí, quiero perderme la experiencia</button>
+            <button class="btn secundario" onclick="abandonFinal()">Sí, quiero perderme la experiencia</button>
             <button class="btn principal" onclick="render('p10')">Quiero seguir en la experiencia</button>
           </div>
         </div>`;
@@ -413,7 +413,7 @@
         <div class="page golpe">
           <div class="texto" style="margin-bottom:2rem;">Estás a punto de abandonar y no disfrutar de la gran experiencia que hay al final del recorrido.<br><br>¿Quieres abandonar?</div>
           <div class="btn-group">
-            <button class="btn secundario" onclick="render('p-abandon-final')">Sí, quiero perderme la experiencia</button>
+            <button class="btn secundario" onclick="abandonFinal()">Sí, quiero perderme la experiencia</button>
             <button class="btn principal" onclick="render('p16')">Quiero seguir en la experiencia</button>
           </div>
         </div>`;
@@ -480,6 +480,11 @@
     }
   }
 
+  function abandonFinal() {
+    enEscenario = false;
+    render('p-abandon-final');
+  }
+
   function renderNo() {
     noCount++;
     enEscenario = false;
@@ -511,8 +516,8 @@
     }
   }
 
-  // Arranca siempre en espera
-  render('espera');
+  // Arranca directamente en Pantalla Cero
+  render('p-cero');
 </script>
 </body>
 </html>

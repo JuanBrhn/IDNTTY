@@ -9,12 +9,10 @@ const pusher = new Pusher({
 });
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
     const { id } = req.body || {};
-    await pusher.trigger('idntty', 'pantalla', { id: id || 'p-terminos' });
+    await pusher.trigger('idntty', 'pantalla', { id: id || 'inicio' });
     res.status(200).json({ ok: true });
   } catch (e) {
     res.status(500).json({ error: e.message });

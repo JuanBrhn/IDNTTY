@@ -64,7 +64,6 @@
       text-transform: uppercase;
     }
     .contador span { opacity: 1; font-weight: 500; }
-
     .texto {
       font-size: 16px;
       line-height: 1.85;
@@ -85,7 +84,6 @@
       margin-top: 1rem;
     }
     .texto ol li { margin-bottom: 0.6rem; }
-
     .btn-group {
       display: flex;
       flex-direction: column;
@@ -103,7 +101,6 @@
       width: 100%;
     }
     .btn:active { transform: scale(0.97); }
-
     body.dark .btn {
       border: 1px solid rgba(255,255,255,0.15);
       background: rgba(255,255,255,0.05);
@@ -116,7 +113,6 @@
       color: #fff;
     }
     body.dark .btn.principal:hover { background: rgba(255,255,255,0.15); }
-
     body.light .btn {
       border: 1px solid rgba(0,0,0,0.15);
       background: rgba(0,0,0,0.04);
@@ -129,7 +125,6 @@
       color: #0a0a0a;
     }
     body.light .btn.principal:hover { background: rgba(0,0,0,0.12); }
-
     body.dark .btn.secundario {
       border-color: rgba(255,255,255,0.08);
       background: transparent;
@@ -142,20 +137,17 @@
       color: rgba(0,0,0,0.35);
       font-size: 14px;
     }
-
     .separador {
       width: 24px; height: 1px;
       margin: 0 auto 2rem;
     }
     body.dark .separador  { background: rgba(255,255,255,0.15); }
     body.light .separador { background: rgba(0,0,0,0.15); }
-
     .pregunta-loop {
       font-size: 20px;
       font-weight: 400;
       margin-bottom: 2rem;
     }
-
     .input-area {
       width: 100%;
       max-width: 300px;
@@ -174,13 +166,6 @@
       color: #0a0a0a;
       outline: none;
     }
-
-    .espera {
-      font-size: 13px;
-      opacity: 0.4;
-      margin-top: 1.5rem;
-      letter-spacing: 0.04em;
-    }
   </style>
 </head>
 <body class="dark">
@@ -189,7 +174,6 @@
   var enEscenario = false;
   var noCount = 0;
 
-  // — Sonido de notificación —
   function sonar() {
     try {
       var ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -200,8 +184,7 @@
       o.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.15);
       g.gain.setValueAtTime(0.3, ctx.currentTime);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-      o.start(ctx.currentTime);
-      o.stop(ctx.currentTime + 0.4);
+      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4);
     } catch(e) {}
   }
 
@@ -209,16 +192,23 @@
     if ('vibrate' in navigator) navigator.vibrate([400, 100, 400, 100, 800]);
   }
 
-  // — Pusher —
   var pusher = new Pusher('3f2e85fafca817cc9e2c', { cluster: 'eu' });
   var canal = pusher.subscribe('idntty');
 
   canal.bind('pantalla', function(data) {
-    if (enEscenario && data && data.id) {
-      if (data.id === 'p-terminos') vibrar();
-      sonar();
-      render(data.id);
-    }
+    if (!data || !data.id) return;
+    var id = data.id;
+
+    // Pantallas que solo afectan a quien está en escenario
+    var soloEscenario = ['p-terminos','p1','p2','p3','p4','p5','p6','p7','p8','p9',
+      'p10','p11','p12','p13','p14','p15','p16','p16b','p17','p18','p19',
+      'p20','p21','p22','p23','p24','p25','p26'];
+
+    if (soloEscenario.indexOf(id) !== -1 && !enEscenario) return;
+
+    if (id === 'p-terminos') vibrar();
+    sonar();
+    render(id);
   });
 
   canal.bind('contador', function(data) {
@@ -226,9 +216,7 @@
     if (el && data && data.total !== undefined) el.textContent = data.total;
   });
 
-  // — Contador: avisar al servidor al conectar —
   fetch('/api/contador', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({accion:'entrar'}) }).catch(function(){});
-
   window.addEventListener('beforeunload', function() {
     navigator.sendBeacon('/api/contador', JSON.stringify({accion:'salir'}));
   });
@@ -237,8 +225,14 @@
     var app = document.getElementById('app');
     var body = document.body;
 
+    // ESPERA INICIAL — arranca aquí siempre
+    if (id === 'espera') {
+      enEscenario = false;
+      body.className = 'dark';
+      app.innerHTML = '<div class="page"></div>';
+
     // PANTALLA CERO
-    if (id === 'p-cero') {
+    } else if (id === 'p-cero') {
       enEscenario = false;
       body.className = 'dark';
       app.innerHTML = `
@@ -248,7 +242,6 @@
             ¡Has escaneado el código a la perfección!<br><br>
             Mantente a la espera con la pantalla desbloqueada en todo momento.
           </div>
-          <p class="espera">En espera…</p>
         </div>`;
 
     // INICIO
@@ -256,7 +249,7 @@
       enEscenario = false; noCount = 0;
       body.className = 'dark';
       app.innerHTML = `
-        <div class="page">
+        <div class="page golpe">
           <p class="contador">Conectados: <span id="contador-num">—</span></p>
           <p class="claim">¿Quieres vivir la experiencia?</p>
           <div class="btn-group">
@@ -264,17 +257,19 @@
             <button class="btn" onclick="renderNo()">No</button>
           </div>
         </div>`;
-      fetch('/api/contador', { method: 'GET' }).then(function(r){ return r.json(); }).then(function(d){
-        var el = document.getElementById('contador-num');
-        if (el && d.total !== undefined) el.textContent = d.total;
-      }).catch(function(){});
+      fetch('/api/contador', { method: 'GET' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var el = document.getElementById('contador-num');
+          if (el && d.total !== undefined) el.textContent = d.total;
+        }).catch(function(){});
 
     // SÍ
     } else if (id === 'p-si') {
       enEscenario = true; noCount = 0;
       body.className = 'dark';
       app.innerHTML = `
-        <div class="page">
+        <div class="page golpe">
           <div class="texto">
             <span style="display:block;font-size:20px;font-weight:400;margin-bottom:1.5rem;">Bienvenido/a.<br>Es un honor que formes parte de esto.</span>
             Tu lugar está en el escenario. Deja las cosas en la grada, baja y ocupa una de las marcas verdes que hay en el suelo.
@@ -424,6 +419,7 @@
         </div>`;
 
     } else if (id === 'p-abandon-final') {
+      enEscenario = false;
       body.className = 'dark';
       app.innerHTML = `
         <div class="page golpe">
@@ -515,7 +511,8 @@
     }
   }
 
-  render('inicio');
+  // Arranca siempre en espera
+  render('espera');
 </script>
 </body>
 </html>

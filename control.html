@@ -76,6 +76,22 @@
       letter-spacing: 0.06em;
     }
     .fin { font-size: 15px; color: rgba(255,255,255,0.4); margin-top: 2rem; }
+    .btn-reinicio {
+      margin-top: 2.5rem;
+      padding: 0.6rem 1.5rem;
+      font-size: 13px;
+      font-family: inherit;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 8px;
+      border: 1px solid rgba(255,100,100,0.3);
+      background: transparent;
+      color: rgba(255,100,100,0.5);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .btn-reinicio:hover { background: rgba(255,100,100,0.08); color: rgba(255,100,100,0.8); border-color: rgba(255,100,100,0.5); }
+    .btn-reinicio:active { transform: scale(0.97); }
   </style>
 </head>
 <body>
@@ -87,6 +103,7 @@
   <p class="estado" id="estado"></p>
   <p class="progreso" id="progreso"></p>
   <p class="fin" id="fin"></p>
+  <button class="btn-reinicio" id="btn-reinicio" onclick="reiniciar()">Reiniciar todo</button>
 
   <script>
     const secuencia = [
@@ -171,6 +188,34 @@
     }
 
     actualizarUI();
+
+    async function reiniciar() {
+      if (!confirm('¿Reiniciar todas las pantallas al inicio?')) return;
+      const btn = document.getElementById('btn-reinicio');
+      const estado = document.getElementById('estado');
+      btn.disabled = true;
+      estado.className = 'estado';
+      estado.textContent = 'Reiniciando…';
+      try {
+        const res = await fetch('/api/trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: 'p-cero', reiniciar: true })
+        });
+        if (res.ok) {
+          paso = 0;
+          actualizarUI();
+          estado.className = 'estado ok';
+          estado.textContent = '✓ Reiniciado';
+        } else { throw new Error(); }
+      } catch(e) {
+        estado.className = 'estado error';
+        estado.textContent = 'Error al reiniciar';
+      } finally {
+        btn.disabled = false;
+        setTimeout(function(){ estado.textContent = ''; }, 2500);
+      }
+    }
   </script>
 </body>
 </html>

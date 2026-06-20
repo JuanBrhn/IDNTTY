@@ -205,10 +205,20 @@
     if (!data || !data.id) return;
     var id = data.id;
 
+    // Reinicio total desde control
+    if (data.reiniciar) {
+      enEscenario = false;
+      noCount = 0;
+      detenerLoop();
+      sonar();
+      render('p-cero');
+      return;
+    }
+
     // Pantallas que solo afectan a quien está en escenario
     var soloEscenario = ['p-terminos','p1','p2','p3','p4','p5','p6','p7','p8','p9',
       'p10','p11','p12','p13','p14','p15','p16','p16b','p17','p18','p19',
-      'p20','p21','p22','p23','p24','p25','p26'];
+      'p20','p20b','p21','p22','p23','p24','p25','p26'];
 
     if (soloEscenario.indexOf(id) !== -1 && !enEscenario) return;
 
@@ -531,8 +541,21 @@
     }
   }
 
-  // Arranca directamente en Pantalla Cero
-  render('p-cero');
+  // Al cargar, pedir al servidor en qué pantalla estamos
+  fetch('/api/trigger', { method: 'GET' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var id = (d && d.pantalla) ? d.pantalla : 'p-cero';
+      // Las pantallas de escenario solo se restauran si el usuario ya había dicho Sí
+      // Al refrescar no sabemos si estaba en escenario, así que mostramos la pantalla
+      // pero no activamos enEscenario para no recibir futuros disparos accidentales
+      var esEscenario = ['p-terminos','p-acepto','p-no-acepto','p1','p2','p3','p4',
+        'p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p16b',
+        'p17','p18','p19','p20','p20b','p21','p22','p23','p24','p25','p26'];
+      if (esEscenario.indexOf(id) !== -1) enEscenario = true;
+      render(id);
+    })
+    .catch(function(){ render('p-cero'); });
 </script>
 </body>
 </html>

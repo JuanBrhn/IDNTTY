@@ -186,11 +186,11 @@
       var o = ctx.createOscillator();
       var g = ctx.createGain();
       o.connect(g); g.connect(ctx.destination);
-      o.frequency.setValueAtTime(880, ctx.currentTime);
-      o.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.15);
-      g.gain.setValueAtTime(0.3, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4);
+      o.frequency.setValueAtTime(1200, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.2);
+      g.gain.setValueAtTime(1.0, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.5);
     } catch(e) {}
   }
 
@@ -246,8 +246,8 @@
         <div class="page golpe">
           <p class="app-title">IDNTTY</p>
           <div class="texto">
-            ¡Has escaneado el código a la perfección!<br><br>
-            Mantente a la espera con la pantalla desbloqueada en todo momento.
+            ¡Has completado el escaneo a la perfección!<br><br>
+            Mantente a la espera con la pantalla desbloqueada en todo momento. Recuerda no refrescar el navegador.
           </div>
         </div>`;
 
@@ -279,11 +279,11 @@
         <div class="page golpe">
           <div class="texto">
             <span style="display:block;font-size:20px;font-weight:400;margin-bottom:1.5rem;">Bienvenido/a.<br>Es un honor que formes parte de esto.</span>
-            Tu lugar está en el escenario. Deja las cosas en la grada, baja y ocupa una de las marcas verdes que hay en el suelo.
+            Tu lugar está en el escenario. Deja las cosas en la grada, baja y ocupa una de las pegatinas verdes que hay en el suelo.
             <ol>
               <li>Deja todas tus cosas en tu asiento y solo llévate tu móvil.</li>
               <li>Pon el volumen multimedia y de las notificaciones en sonido, ya que te enviaremos avisos sonoros.</li>
-              <li>Podrás moverte solo encima de la marca, puedes girarte, mirar a donde quieras, pero solo desde la marca, a no ser que la plataforma te pida lo contrario.</li>
+              <li>Podrás moverte solo encima de la marca, puedes girarte, mirar a donde quieras, pero solo desde la pegatina, a no ser que la plataforma te pida lo contrario.</li>
             </ol>
             <br>Pronto podrás disfrutar de la increíble Experiencia.
           </div>
@@ -459,7 +459,11 @@
 
     } else if (id === 'p20') {
       body.className = 'light';
-      app.innerHTML = `<div class="page golpe"><div class="texto grande">Tienes que eliminar varios contactos de tu red de amistad. Hemos detectado incompatibilidad con 3 de tus contactos.<br><br>Elige a una persona de un color diferente al tuyo y acaba con su vida.</div></div>`;
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">Tienes que eliminar varios contactos de tu red de amistad. Hemos detectado incompatibilidad con 3 de tus contactos.<br><br>Elige a una persona de un color diferente al tuyo y acaba con su vida física. Tienes 1 minuto para elegir a esas personas.</div></div>`;
+
+    } else if (id === 'p20b') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡No lo hagáis! ¿Hola? ¿Me oís?<br><br>La plataforma quiere acabar contigo.<br><br>¡No le hagáis caso!</div></div>`;
 
     } else if (id === 'p21') {
       body.className = 'red';
@@ -478,7 +482,7 @@
 
     } else if (id === 'p24') {
       body.className = 'light';
-      app.innerHTML = `<div class="page golpe"><div class="texto grande">NO BAILÉIS.<br>NADIE OS HA PERMITIDO BAILAR.</div></div>`;
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">NO BAILÉIS.<br>NADIE OS HA PERMITIDO BAILAR.<br>SI BAILAS TE DESCONECTAS DE LA PLATAFORMA.</div></div>`;
 
     } else if (id === 'p25') {
       body.className = 'dark';

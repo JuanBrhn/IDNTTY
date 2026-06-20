@@ -8,12 +8,22 @@ const pusher = new Pusher({
   useTLS: true
 });
 
+// Estado global en memoria
+let pantallaActual = 'p-cero';
+
 module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method === 'GET') {
+    return res.status(200).json({ pantalla: pantallaActual });
+  }
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
   try {
-    const { id } = req.body || {};
-    await pusher.trigger('idntty', 'pantalla', { id: id || 'inicio' });
-    res.status(200).json({ ok: true });
+    const { id, reiniciar } = req.body || {};
+    const nuevaPantalla = id || 'p-cero';
+    pantallaActual = nuevaPantalla;
+    await pusher.trigger('idntty', 'pantalla', { id: nuevaPantalla, reiniciar: !!reiniciar });
+    res.status(200).json({ ok: true, pantalla: pantallaActual });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

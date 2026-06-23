@@ -227,8 +227,20 @@
   }
 
   function vibrar() {
-    if ('vibrate' in navigator) navigator.vibrate([400, 100, 400, 100, 800]);
+    try {
+      if ('vibrate' in navigator) {
+        navigator.vibrate([400, 100, 400, 100, 800]);
+      }
+    } catch(e) {}
   }
+
+  // Desbloquear vibración en primer toque (algunos dispositivos la requieren)
+  function desbloquearVibracion() {
+    try {
+      if ('vibrate' in navigator) navigator.vibrate(0);
+    } catch(e) {}
+  }
+  document.addEventListener('touchstart', desbloquearVibracion, { once: true });
 
   var pusher = new Pusher('3f2e85fafca817cc9e2c', { cluster: 'eu' });
   var canal = pusher.subscribe('idntty');
@@ -504,15 +516,15 @@
       app.innerHTML = `<div class="page golpe"><div class="texto grande">Tienes que eliminar varios contactos de tu red de amistad. Hemos detectado incompatibilidad con 3 de tus contactos.<br><br>Elige a una persona de un color diferente al tuyo y acaba con su vida física. Tienes 1 minuto para elegir a esas personas.</div></div>`;
 
     } else if (id === 'p20b') {
-      body.className = 'light';
-      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡No lo hagáis! ¿Hola? ¿Me oís?<br><br>La plataforma quiere acabar contigo.<br><br>¡No le hagáis caso!</div></div>`;
-
-    } else if (id === 'p21') {
       body.className = 'red';
       app.innerHTML = `<div class="page golpe"><div class="texto grande" style="color:#fff;">ERROR EN EL SISTEMA.<br>RECALIBRANDO LA PLATAFORMA.</div></div>`;
       // Sonido en bucle cada 2.5 segundos
       sonar();
       loopSonido = setInterval(function() { sonar(); }, 2500);
+
+    } else if (id === 'p21') {
+      body.className = 'light';
+      app.innerHTML = `<div class="page golpe"><div class="texto grande">¡No lo hagáis! ¿Hola? ¿Me oís?<br><br>La plataforma quiere acabar contigo.<br><br>¡No le hagáis caso!</div></div>`;
 
     } else if (id === 'p22') {
       body.className = 'dark';

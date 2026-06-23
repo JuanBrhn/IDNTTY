@@ -285,6 +285,7 @@
     detenerLoop();
     var app = document.getElementById('app');
     var body = document.body;
+    var _renderID = id; // guardamos para postRender al final
 
     // ESPERA INICIAL — arranca aquí siempre
     if (id === 'espera') {
@@ -546,12 +547,33 @@
       body.className = 'dark';
       app.innerHTML = `<div class="page golpe"></div>`;
     }
+
+    postRender(_renderID);
+  } // fin render
+
+  // Confirmar recepción al servidor para el contador del control
+  function postRender(id) {
+    var escenario = ['p-terminos','p-acepto','p-no-acepto','p1','p2','p3','p4',
+      'p5','p6','p7','p8','p9','p9-abandonar','p10','p11','p12','p13','p14',
+      'p15','p15-abandonar','p16','p16b','p17','p18','p19','p20','p20b',
+      'p21','p22','p23','p24','p25','p26'];
+    if (escenario.indexOf(id) !== -1) confirmarPantalla(id);
   }
 
   function abandonFinal() {
     enEscenario = false;
     detenerLoop();
     render('p-abandon-final');
+  }
+
+  function confirmarPantalla(id) {
+    try {
+      fetch('/api/confirmar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pantalla: id })
+      }).catch(function(){});
+    } catch(e) {}
   }
 
   function renderNo() {

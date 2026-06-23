@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Control — IDNTTY</title>
+  <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -76,6 +77,28 @@
       letter-spacing: 0.06em;
     }
     .fin { font-size: 15px; color: rgba(255,255,255,0.4); margin-top: 2rem; }
+    .llegados {
+      margin-top: 0.75rem;
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.04em;
+    }
+    .llegados span {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .llegados {
+      margin-top: 0.75rem;
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.04em;
+    }
+    .llegados span {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 500;
+    }
     .btn-reinicio {
       margin-top: 2.5rem;
       padding: 0.6rem 1.5rem;
@@ -102,10 +125,26 @@
   <button class="btn-disparar" id="btn" onclick="disparar()">Disparar</button>
   <p class="estado" id="estado"></p>
   <p class="progreso" id="progreso"></p>
+  <p class="llegados">Han llegado: <span id="contador-llegados">—</span></p>
   <p class="fin" id="fin"></p>
   <button class="btn-reinicio" id="btn-reinicio" onclick="reiniciar()">Reiniciar todo</button>
 
   <script>
+    // Pusher para recibir confirmaciones en tiempo real
+    var pusherCtrl = new Pusher('3f2e85fafca817cc9e2c', { cluster: 'eu' });
+    var canalCtrl = pusherCtrl.subscribe('idntty-control');
+    canalCtrl.bind('confirmacion', function(data) {
+      if (data.reset) {
+        document.getElementById('contador-llegados').textContent = '—';
+        return;
+      }
+      // Solo mostrar si es la pantalla que acabamos de disparar
+      var pasoActual = paso > 0 ? secuencia[paso - 1] : null;
+      if (pasoActual && data.pantalla === pasoActual.id) {
+        document.getElementById('contador-llegados').textContent = data.llegados;
+      }
+    });
+
     const secuencia = [
       { id: 'inicio',     nombre: 'Inicio — ¿Quieres vivir la experiencia?' },
       { id: 'p-terminos', nombre: 'Términos y condiciones ⚡ vibración' },
@@ -174,6 +213,7 @@
           estado.className = 'estado ok';
           estado.textContent = '✓ Enviado';
           paso++;
+          document.getElementById('contador-llegados').textContent = '0';
           actualizarUI();
         } else { throw new Error(); }
       } catch(e) {
@@ -201,7 +241,9 @@
         });
         if (res.ok) {
           paso = 0;
+          document.getElementById('contador-llegados').textContent = '—';
           actualizarUI();
+          fetch('/api/confirmar', { method: 'DELETE' }).catch(function(){});
           estado.className = 'estado ok';
           estado.textContent = '✓ Reiniciado';
         } else { throw new Error(); }

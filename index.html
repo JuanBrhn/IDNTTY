@@ -254,6 +254,7 @@
       enEscenario = false;
       noCount = 0;
       detenerLoop();
+      try { sessionStorage.removeItem('idntty_pantalla'); sessionStorage.removeItem('idntty_escenario'); } catch(e) {}
       sonar();
       render('p-cero');
       return;
@@ -553,6 +554,10 @@
 
   // Confirmar recepción al servidor para el contador del control
   function postRender(id) {
+    // Guardar siempre en sessionStorage para sobrevivir al refresco
+    try { sessionStorage.setItem('idntty_pantalla', id); } catch(e) {}
+    try { sessionStorage.setItem('idntty_escenario', enEscenario ? '1' : '0'); } catch(e) {}
+    // Confirmar al servidor solo pantallas de escenario
     var escenario = ['p-terminos','p-acepto','p-no-acepto','p1','p2','p3','p4',
       'p5','p6','p7','p8','p9','p9-abandonar','p10','p11','p12','p13','p14',
       'p15','p15-abandonar','p16','p16b','p17','p18','p19','p20','p20b',
@@ -607,21 +612,34 @@
     }
   }
 
-  // Al cargar, pedir al servidor en qué pantalla estamos
-  fetch('/api/trigger', { method: 'GET' })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      var id = (d && d.pantalla) ? d.pantalla : 'p-cero';
-      // Las pantallas de escenario solo se restauran si el usuario ya había dicho Sí
-      // Al refrescar no sabemos si estaba en escenario, así que mostramos la pantalla
-      // pero no activamos enEscenario para no recibir futuros disparos accidentales
-      var esEscenario = ['p-terminos','p-acepto','p-no-acepto','p1','p2','p3','p4',
-        'p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16','p16b',
-        'p17','p18','p19','p20','p20b','p21','p22','p23','p24','p25','p26'];
-      if (esEscenario.indexOf(id) !== -1) enEscenario = true;
-      render(id);
-    })
-    .catch(function(){ render('p-cero'); });
+  // Al cargar: primero mirar sessionStorage (pantalla exacta del usuario),
+  // si no hay, consultar servidor (pantalla global del espectáculo)
+  (function arrancar() {
+    var esEscenarioPantallas = ['p-terminos','p-acepto','p-no-acepto','p1','p2','p3','p4',
+      'p5','p6','p7','p8','p9','p9-abandonar','p10','p11','p12','p13','p14',
+      'p15','p15-abandonar','p16','p16b','p17','p18','p19','p20','p20b',
+      'p21','p22','p23','p24','p25','p26'];
+
+    try {
+      var pantallaLocal = sessionStorage.getItem('idntty_pantalla');
+      var escenarioLocal = sessionStorage.getItem('idntty_escenario');
+      if (pantallaLocal) {
+        if (escenarioLocal === '1') enEscenario = true;
+        render(pantallaLocal);
+        return;
+      }
+    } catch(e) {}
+
+    // Sin sessionStorage: consultar servidor
+    fetch('/api/trigger', { method: 'GET' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var id = (d && d.pantalla) ? d.pantalla : 'p-cero';
+        if (esEscenarioPantallas.indexOf(id) !== -1) enEscenario = true;
+        render(id);
+      })
+      .catch(function(){ render('p-cero'); });
+  })();
 </script>
 </body>
 </html>
